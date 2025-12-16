@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.*;
+import org.mockito.ArgumentCaptor;
 
 @ExtendWith(MockitoExtension.class)
 class BookingServiceTest {
@@ -83,11 +84,11 @@ class BookingServiceTest {
         when(businessDayMapper.findById(1)).thenReturn(businessDay);
         when(timeSlotMapper.findById(1)).thenReturn(timeSlot);
         when(bookingMapper.findByBusinessDayAndTimeSlot(1, 1)).thenReturn(null);
-        when(bookingMapper.insert(any(Booking.class))).thenAnswer(invocation -> {
+        doAnswer(invocation -> {
             Booking booking = invocation.getArgument(0);
             booking.setBookingId(1);
             return null;
-        });
+        }).when(bookingMapper).insert(any(Booking.class));
 
         assertDoesNotThrow(() -> bookingService.createBooking(1, bookingDto));
         verify(bookingMapper, times(1)).insert(any(Booking.class));

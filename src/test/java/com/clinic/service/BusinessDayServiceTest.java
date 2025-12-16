@@ -38,11 +38,11 @@ class BusinessDayServiceTest {
     @Test
     void testRegisterBusinessDay_Success() {
         when(businessDayMapper.findByBusinessDate(any(LocalDate.class))).thenReturn(null);
-        when(businessDayMapper.insert(any(BusinessDay.class))).thenAnswer(invocation -> {
+        doAnswer(invocation -> {
             BusinessDay bd = invocation.getArgument(0);
             bd.setBusinessDayId(1);
             return null;
-        });
+        }).when(businessDayMapper).insert(any(BusinessDay.class));
 
         assertDoesNotThrow(() -> businessDayService.registerBusinessDay(businessDayDto));
         verify(businessDayMapper, times(1)).insert(any(BusinessDay.class));
