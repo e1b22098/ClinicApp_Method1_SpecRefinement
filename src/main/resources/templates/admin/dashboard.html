@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理者ダッシュボード - 診療予約管理システム</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/">診療予約管理システム</a>
+            <div class="navbar-nav ms-auto">
+                <span class="navbar-text me-3">
+                    <span th:text="${#authentication.name}"></span> さん（管理者）
+                </span>
+                <a class="nav-link" href="/logout">ログアウト</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <h2 class="mb-4">管理者ダッシュボード</h2>
+        
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="bi bi-calendar-check"></i> 予約状況一覧</h5>
+                        <p class="card-text">日付単位で予約情報を確認できます</p>
+                        <a th:href="@{/admin/bookings}" class="btn btn-primary">予約状況一覧</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="bi bi-calendar-event"></i> 営業日設定</h5>
+                        <p class="card-text">予約可能日の登録・無効化を行います</p>
+                        <a th:href="@{/admin/business-days}" class="btn btn-primary">営業日設定</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+

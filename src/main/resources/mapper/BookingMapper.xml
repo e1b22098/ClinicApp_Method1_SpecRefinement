@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.clinic.repository.BookingMapper">
+    <resultMap id="BookingResultMap" type="com.clinic.domain.Booking">
+        <id property="bookingId" column="booking_id"/>
+        <result property="userId" column="user_id"/>
+        <result property="businessDayId" column="business_day_id"/>
+        <result property="timeSlotId" column="time_slot_id"/>
+        <result property="bookingDate" column="booking_date"/>
+        <result property="status" column="status"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+        <association property="businessDay" javaType="com.clinic.domain.BusinessDay">
+            <id property="businessDayId" column="bd_business_day_id"/>
+            <result property="businessDate" column="bd_business_date"/>
+            <result property="isActive" column="bd_is_active"/>
+        </association>
+        <association property="timeSlot" javaType="com.clinic.domain.TimeSlot">
+            <id property="timeSlotId" column="ts_time_slot_id"/>
+            <result property="slotName" column="ts_slot_name"/>
+            <result property="startTime" column="ts_start_time"/>
+            <result property="endTime" column="ts_end_time"/>
+        </association>
+    </resultMap>
+
+    <resultMap id="BookingDetailResultMap" type="com.clinic.dto.BookingDetailDto">
+        <id property="bookingId" column="booking_id"/>
+        <result property="userName" column="user_name"/>
+        <result property="cardNumber" column="card_number"/>
+        <result property="businessDate" column="business_date"/>
+        <result property="slotName" column="slot_name"/>
+        <result property="startTime" column="start_time"/>
+        <result property="endTime" column="end_time"/>
+        <result property="status" column="status"/>
+    </resultMap>
+
+    <select id="findByBusinessDayAndTimeSlot" resultMap="BookingResultMap">
+        SELECT booking_id, user_id, business_day_id, time_slot_id, booking_date, status, created_at, updated_at
+        FROM bookings
+        WHERE business_day_id = #{businessDayId} AND time_slot_id = #{timeSlotId} AND status = 'ACTIVE'
+    </select>
+
+    <select id="findByUserId" resultMap="BookingResultMap">
+        SELECT 
+            b.booking_id, 
+            b.user_id, 
+            b.business_day_id, 
+            b.time_slot_id, 
+            b.booking_date, 
+            b.status, 
+            b.created_at, 
+            b.updated_at,
+            bd.business_day_id as bd_business_day_id,
+            bd.business_date as bd_business_date,
+            bd.is_active as bd_is_active,
+            ts.time_slot_id as ts_time_slot_id,
+            ts.slot_name as ts_slot_name,
+            ts.start_time as ts_start_time,
+            ts.end_time as ts_end_time
+        FROM bookings b
+        INNER JOIN business_days bd ON b.business_day_id = bd.business_day_id
+        INNER JOIN time_slots ts ON b.time_slot_id = ts.time_slot_id
+        WHERE b.user_id = #{userId} AND b.status = 'ACTIVE'
+        ORDER BY bd.business_date DESC, ts.start_time ASC
+    </select>
+
+    <select id="findBookingDetailsByDate" resultMap="BookingDetailResultMap">
+        SELECT 
+            b.booking_id,
+            u.name AS user_name,
+            u.card_number,
+            bd.business_date,
+            ts.slot_name,
+            ts.start_time,
+            ts.end_time,
+            b.status
+        FROM bookings b
+        INNER JOIN users u ON b.user_id = u.user_id
+        INNER JOIN business_days bd ON b.business_day_id = bd.business_day_id
+        INNER JOIN time_slots ts ON b.time_slot_id = ts.time_slot_id
+        WHERE bd.business_date = #{date} AND b.status = 'ACTIVE'
+        ORDER BY ts.start_time ASC
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="bookingId">
+        INSERT INTO bookings (user_id, business_day_id, time_slot_id, status)
+        VALUES (#{userId}, #{businessDayId}, #{timeSlotId}, #{status})
+    </insert>
+
+    <update id="cancelBooking">
+        UPDATE bookings
+        SET status = 'CANCELLED', updated_at = CURRENT_TIMESTAMP
+        WHERE booking_id = #{bookingId}
+    </update>
+
+    <select id="findById" resultMap="BookingResultMap">
+        SELECT booking_id, user_id, business_day_id, time_slot_id, booking_date, status, created_at, updated_at
+        FROM bookings
+        WHERE booking_id = #{bookingId}
+    </select>
+</mapper>
+

@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>予約作成 - 診療予約管理システム</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/">診療予約管理システム</a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="/user/dashboard">ダッシュボード</a>
+                <a class="nav-link" href="/logout">ログアウト</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <h2 class="mb-4">予約作成</h2>
+
+        <form th:action="@{/user/booking/create}" th:object="${bookingDto}" method="post">
+            <div class="mb-3">
+                <label for="businessDayId" class="form-label">営業日 <span class="text-danger">*</span></label>
+                <select class="form-select" id="businessDayId" th:field="*{businessDayId}" required>
+                    <option value="">選択してください</option>
+                    <option th:each="bd : ${businessDays}" 
+                            th:value="${bd.businessDayId}" 
+                            th:text="${#temporals.format(bd.businessDate, 'yyyy年MM月dd日 (E)', java.util.Locale.JAPANESE)}">
+                    </option>
+                </select>
+                <div th:if="${#fields.hasErrors('businessDayId')}" class="text-danger">
+                    <span th:errors="*{businessDayId}"></span>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">時間枠 <span class="text-danger">*</span></label>
+                <div class="row" id="timeSlotContainer">
+                    <div th:each="ts : ${timeSlots}" class="col-md-3 mb-2">
+                        <div class="form-check">
+                            <input class="form-check-input" 
+                                   type="radio" 
+                                   th:id="'timeSlot' + ${ts.timeSlotId}"
+                                   th:field="*{timeSlotId}" 
+                                   th:value="${ts.timeSlotId}"
+                                   th:data-slot-id="${ts.timeSlotId}"
+                                   required>
+                            <label class="form-check-label" th:for="'timeSlot' + ${ts.timeSlotId}">
+                                <span th:text="${ts.slotName}"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div th:if="${#fields.hasErrors('timeSlotId')}" class="text-danger">
+                    <span th:errors="*{timeSlotId}"></span>
+                </div>
+            </div>
+
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                <a th:href="@{/user/dashboard}" class="btn btn-secondary">キャンセル</a>
+                <button type="submit" class="btn btn-primary">予約確認へ</button>
+            </div>
+        </form>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.getElementById('businessDayId').addEventListener('change', function() {
+            const businessDayId = this.value;
+            const timeSlotInputs = document.querySelectorAll('input[type="radio"][name="timeSlotId"]');
+            
+            if (businessDayId) {
+                // 全ての時間枠を有効化
+                timeSlotInputs.forEach(input => {
+                    input.disabled = false;
+                    input.closest('.form-check').querySelector('label').classList.remove('text-muted');
+                });
+                
+                // 予約済み時間枠をチェック（簡易版：実際の実装ではAPI呼び出しが必要）
+                // ここではサーバー側でバリデーションを行う
+            } else {
+                // 営業日が選択されていない場合は全て無効化
+                timeSlotInputs.forEach(input => {
+                    input.disabled = true;
+                    input.closest('.form-check').querySelector('label').classList.add('text-muted');
+                });
+            }
+        });
+    </script>
+</body>
+</html>
+
