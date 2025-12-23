@@ -14,5 +14,11 @@
         FROM admins
         WHERE admin_id = #{adminId}
     </select>
+
+    <update id="updatePassword">
+        UPDATE admins
+        SET password = #{password}, updated_at = CURRENT_TIMESTAMP
+        WHERE admin_id = #{adminId}
+    </update>
 </mapper>
 

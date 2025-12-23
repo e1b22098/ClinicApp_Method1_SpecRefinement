@@ -27,7 +27,7 @@
                     <option value="">選択してください</option>
                     <option th:each="bd : ${businessDays}" 
                             th:value="${bd.businessDayId}" 
-                            th:text="${#temporals.format(bd.businessDate, 'yyyy年MM月dd日 (E)', java.util.Locale.JAPANESE)}">
+                            th:text="${#temporals.format(bd.businessDate, 'yyyy年MM月dd日 (E)', T(java.util.Locale).JAPANESE)}">
                     </option>
                 </select>
                 <div th:if="${#fields.hasErrors('businessDayId')}" class="text-danger">

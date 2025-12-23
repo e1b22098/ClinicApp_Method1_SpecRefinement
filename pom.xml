@@ -12,16 +12,40 @@
         <relativePath/>
     </parent>
 
-    <groupId>com.clinic</groupId>
-    <artifactId>clinic-booking-system</artifactId>
+    <groupId>com.unknownclinic</groupId>
+    <artifactId>appointment</artifactId>
     <version>1.0.0</version>
-    <name>Clinic Booking System</name>
+    <packaging>jar</packaging>
+    <name>ClinicApp_Method1_SpecRefinement</name>
     <description>診療予約管理システム</description>
 
     <properties>
         <java.version>17</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <mybatis-spring-boot.version>3.0.3</mybatis-spring-boot.version>
+        <mysql-connector.version>8.0.33</mysql-connector.version>
+        <!-- SonarQube設定 -->
+        <!-- SonarQube Cloudを使用する場合、以下のURLを使用 -->
+        <!-- ローカルのSonarQubeを使用する場合は http://localhost:9000 に変更 -->
+        <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+        <sonar.projectKey>ClinicApp_Method1_SpecRefinement</sonar.projectKey>
+        <sonar.projectName>ClinicApp_Method1_SpecRefinement</sonar.projectName>
+        <!-- 認証トークンは環境変数 SONAR_TOKEN から読み取る（コマンドライン引数でも指定可能） -->
+        <!-- 例: mvn sonar:sonar -Dsonar.token=YOUR_TOKEN -->
+        <sonar.sources>src/main/java</sonar.sources>
+        <sonar.tests>src/test/java</sonar.tests>
+        <sonar.sourceEncoding>UTF-8</sonar.sourceEncoding>
+        <sonar.java.binaries>target/classes</sonar.java.binaries>
+        <sonar.java.test.binaries>target/test-classes</sonar.java.test.binaries>
+        <!-- JaCoCo XMLレポートのパス（複数のパスを指定可能） -->
+        <sonar.coverage.jacoco.xmlReportPaths>${project.build.directory}/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
+        <!-- SonarQube Cloud用のカバレッジレポートパス -->
+        <sonar.coverageReportPaths>${project.build.directory}/site/jacoco/jacoco.xml</sonar.coverageReportPaths>
+        <!-- カバレッジの除外設定（オプション） -->
+        <sonar.coverage.exclusions>**/domain/**</sonar.coverage.exclusions>
+        <sonar.language>java</sonar.language>
+        <sonar.java.source>17</sonar.java.source>
+        <sonar.java.target>17</sonar.java.target>
     </properties>
 
     <dependencies>
@@ -35,6 +59,11 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-thymeleaf</artifactId>
+        </dependency>
+        <!-- Thymeleaf Spring Security Integration -->
+        <dependency>
+            <groupId>org.thymeleaf.extras</groupId>
+            <artifactId>thymeleaf-extras-springsecurity6</artifactId>
         </dependency>
 
         <!-- Spring Security -->
@@ -50,11 +79,11 @@
             <version>${mybatis-spring-boot.version}</version>
         </dependency>
 
-        <!-- MySQL Driver -->
+        <!-- MySQL Connector -->
         <dependency>
             <groupId>com.mysql</groupId>
             <artifactId>mysql-connector-j</artifactId>
-            <scope>runtime</scope>
+            <version>${mysql-connector.version}</version>
         </dependency>
 
         <!-- Validation -->
@@ -102,7 +131,88 @@
                     </excludes>
                 </configuration>
             </plugin>
+
+            <!-- Maven Compiler Plugin -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>17</source>
+                    <target>17</target>
+                    <encoding>UTF-8</encoding>
+                </configuration>
+            </plugin>
+
+            <!-- Maven Surefire Plugin: テスト実行 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.1.2</version>
+                <configuration>
+                    <useSystemClassLoader>false</useSystemClassLoader>
+                    <!-- JacocoがセットしたargLineをテストJVMに渡す -->
+                    <argLine>${argLine}</argLine>
+                </configuration>
+            </plugin>
+
+            <!-- Jacoco Plugin: コードカバレッジ -->
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.12</version>
+                <configuration>
+                    <destFile>${project.build.directory}/jacoco.exec</destFile>
+                    <append>true</append>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>prepare-agent</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                        <configuration>
+                            <destFile>${project.build.directory}/jacoco.exec</destFile>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>report</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                        <configuration>
+                            <!-- XMLレポートを明示的に生成 -->
+                            <formats>
+                                <format>XML</format>
+                                <format>HTML</format>
+                            </formats>
+                            <outputDirectory>${project.build.directory}/site/jacoco</outputDirectory>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>report-verify</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                        <configuration>
+                            <!-- XMLレポートを明示的に生成 -->
+                            <formats>
+                                <format>XML</format>
+                                <format>HTML</format>
+                            </formats>
+                            <outputDirectory>${project.build.directory}/site/jacoco</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- SonarQube Maven Plugin -->
+            <plugin>
+                <groupId>org.sonarsource.scanner.maven</groupId>
+                <artifactId>sonar-maven-plugin</artifactId>
+                <version>4.0.0.4121</version>
+            </plugin>
         </plugins>
     </build>
 </project>
-
